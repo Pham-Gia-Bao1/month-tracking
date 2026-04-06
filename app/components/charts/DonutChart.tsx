@@ -1,3 +1,7 @@
+'use client';
+
+import { ReactElement } from "react";
+
 export function DonutChart({ segments }: { segments: { pct: number; color: string }[] }) {
   const R = 70;
   const CX = 90;
