@@ -37,12 +37,9 @@ html, body {
 .font-display { font-family: 'DM Serif Display', serif; }
 
 .phone-frame {
-  width: 390px;
-  min-height: 844px;
-  max-height: 844px;
   overflow: hidden;
   position: relative;
-  background: var(--bg);
+  height: 755px;
 }
 
 .scroll-area { overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }

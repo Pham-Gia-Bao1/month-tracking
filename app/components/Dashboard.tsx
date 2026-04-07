@@ -12,7 +12,7 @@ import CategoryDetail from './CategoryDetail';
 import HistoryScreen from './HistoryScreen';
 import InsightsScreen from './InsightsScreen';
 import formatVND from '../helpers/formatVND';
-import SwipeItem from './SwipeItem';
+import {SwipeItem} from './SwipeItem';
 
 type Tab = 'overview' | 'history' | 'insights';
 
@@ -114,11 +114,11 @@ export const Dashboard= () => {
     return () => clearTimeout(timer);
   }, [lastDeleted]);
   return (
-    <div className="phone-frame flex flex-col bg-red-800">
+    <div className="phone-frame flex flex-col overflow-none">
       {/* <StatusBar /> */}
 
       {/* Tab content */}
-      <div className="flex-1 overflow-hidden flex flex-col mt-5">
+      <div className="flex-1 overflow-hidden flex flex-col">
         {tab === 'overview' && (
           <div className="flex flex-col flex-1 overflow-hidden">
             {/* Header */}
@@ -188,7 +188,7 @@ export const Dashboard= () => {
             </div>
 
             {/* Categories list */}
-            <div className="scroll-area flex-1 px-5 pb-4">
+            <div className="scroll-area flex-1 px-5 pb-10">
               <div className="flex justify-end  items-center mb-3 px-1">
 
                 <button
@@ -208,7 +208,7 @@ export const Dashboard= () => {
                   {sortBySpent === 'asc' && 'Low → High'}
                 </button>
               </div>
-              <div className="flex flex-col gap-3 stagger pb-24">
+              <div className="flex flex-col gap-3  max-h-[490px] scroll-area mb-12">
                 {sortedCategories.map((cat) => {
                   const spent = cat.expenses.reduce((s, e) => s + e.amount, 0);
                   const isDone = spent >= cat.budget;
@@ -306,7 +306,7 @@ export const Dashboard= () => {
                   </div>
                 )}
 
-                <div className="flex justify-between text-xs mb-2 px-1">
+                <div className="flex justify-between text-xs mb-6 px-1">
                   <span style={{ color: 'var(--text-muted)' }}>
                     Allocated
                   </span>
@@ -315,13 +315,13 @@ export const Dashboard= () => {
                     {formatVND(totalCategoryBudget)} / {formatVND(activeMonth.budgetGoal)}
                   </span>
                 </div>
-                <button onClick={() => setShowAddCategory(true)}
+                {/* <button onClick={() => setShowAddCategory(true)}
                   disabled={remainingCategoryBudget <= 0}
                   className="pressable flex items-center justify-center gap-2 rounded-2xl py-4"
                   style={{ border: '1.5px dashed var(--border)', color: 'var(--text-muted)' }}>
                   <Plus size={16} />
                   <span className="text-sm font-medium">Add Category</span>
-                </button>
+                </button> */}
 
               </div>
             </div>

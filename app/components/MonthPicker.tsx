@@ -38,7 +38,7 @@ export function MonthPicker({ onClose }: Props) {
 
   return (
     <div className="absolute inset-0 flex items-end modal-backdrop animate-fade-in" style={{ zIndex: 60 }}>
-      <div className="w-full animate-sheet rounded-t-3xl p-6"
+      <div className="w-full animate-sheet rounded-t-3xl p-6 max-h-[500px]  "
         style={{ background: 'var(--surface)' }}>
         {/* Handle */}
         <div className="flex justify-center -mt-3 mb-4">
@@ -52,7 +52,7 @@ export function MonthPicker({ onClose }: Props) {
           </button>
         </div>
 
-        <div className="flex flex-col gap-2 stagger grid grid-cols-1 sm:grid-cols-2">
+        <div className="flex flex-col gap-2 stagger grid grid-cols-1 sm:grid-cols-2 scroll-area max-h-[350px]">
           {options.map(opt => {
             const exists = state.months.find(m => m.id === opt.id);
             const isActive = opt.id === activeMonth.id;

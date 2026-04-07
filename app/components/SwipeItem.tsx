@@ -5,12 +5,14 @@ import { CheckCircle } from 'lucide-react';
 interface SwipeItemProps {
     children: React.ReactNode;
     onDelete: () => void;
-    isDone?: boolean; // 🔥 thêm prop
+    isDone?: boolean;
 }
 
-export default function SwipeItem({ children, onDelete, isDone }: SwipeItemProps) {
+export function SwipeItem({ children, onDelete, isDone }: SwipeItemProps) {
     const startX = useRef(0);
-    const currentX = useRef(0);
+    const startY = useRef(0);
+    // null = undecided, true = horizontal swipe, false = vertical scroll
+    const gestureDirection = useRef<boolean | null>(null);
     const isDraggingRef = useRef(false);
 
     const [translateX, setTranslateX] = useState(0);
@@ -22,34 +24,63 @@ export default function SwipeItem({ children, onDelete, isDone }: SwipeItemProps
 
     const MAX = -140;
     const DELETE_THRESHOLD = -90;
+    // Must move this many px before direction is locked
+    const DIRECTION_LOCK_THRESHOLD = 8;
 
     const onPointerDown = (e: React.PointerEvent) => {
         startX.current = e.clientX;
+        startY.current = e.clientY;
+        gestureDirection.current = null;
         isDraggingRef.current = false;
         setDragging(true);
-
-        e.currentTarget.setPointerCapture(e.pointerId); // 🔥 fix drag
+        // Do NOT setPointerCapture here — let the browser decide scroll vs swipe
     };
 
     const onPointerMove = (e: React.PointerEvent) => {
         if (!dragging || removing) return;
 
-        currentX.current = e.clientX;
-        let diff = currentX.current - startX.current;
+        const deltaX = e.clientX - startX.current;
+        const deltaY = e.clientY - startY.current;
 
-        if (Math.abs(diff) > 5) {
-            isDraggingRef.current = true;
+        // Lock gesture direction once movement crosses the threshold
+        if (gestureDirection.current === null) {
+            const absX = Math.abs(deltaX);
+            const absY = Math.abs(deltaY);
+            if (absX < DIRECTION_LOCK_THRESHOLD && absY < DIRECTION_LOCK_THRESHOLD) {
+                // Not enough movement to decide yet
+                return;
+            }
+            gestureDirection.current = absX > absY;
+            // Only capture the pointer once we know this is a horizontal swipe;
+            // if vertical, we let native scroll take over.
+            if (gestureDirection.current) {
+                e.currentTarget.setPointerCapture(e.pointerId);
+            }
         }
 
-        if (isDraggingRef.current && diff < 0) {
+        // Bail out for vertical gestures — native scroll handles it
+        if (!gestureDirection.current) return;
+
+        let diff = deltaX;
+        isDraggingRef.current = true;
+
+        if (diff < 0) {
             if (diff < MAX) {
                 diff = MAX + (diff - MAX) * 0.25;
             }
             setTranslateX(diff);
+        } else {
+            setTranslateX(0);
         }
     };
 
-    const onPointerUp = () => {
+    const onPointerUp = (e: React.PointerEvent) => {
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        }
+
+        gestureDirection.current = null;
+
         if (removing) return;
 
         setDragging(false);
@@ -70,6 +101,7 @@ export default function SwipeItem({ children, onDelete, isDone }: SwipeItemProps
                 onDelete();
             }, 300);
         } else {
+            isDraggingRef.current = false;
             setTranslateX(0);
         }
     };
@@ -77,42 +109,40 @@ export default function SwipeItem({ children, onDelete, isDone }: SwipeItemProps
     const progress = Math.min(Math.abs(translateX) / 100, 1);
 
     return (
+        // touchAction: 'pan-y' must be on the outermost interactive element so the
+        // browser knows vertical scroll is always allowed here.
         <div
             className="relative overflow-hidden rounded-2xl"
             style={{
                 height,
                 transition: removing ? 'height 0.25s ease' : undefined,
+                touchAction: 'pan-y',
             }}
         >
-            {/* 🔴 Background delete */}
+            {/* Background delete */}
             <div
-                className="absolute inset-0 bg-red-500 flex items-center justify-end pr-5"
+                className="absolute inset-0 flex items-center justify-end pr-5 bg-red-500"
                 style={{
                     opacity: progress,
                     transition: dragging ? 'none' : 'opacity 0.2s',
                 }}
             >
-                <span className="text-white text-sm font-semibold">
-                    Delete
-                </span>
+                <span className="text-white text-sm font-semibold">Delete</span>
             </div>
 
-            {/* 📦 Content */}
+            {/* Content */}
             <div
                 ref={ref}
-                style={{
-                    transform: `translateX(${translateX}px)`,
-                    touchAction: 'pan-y',
-                }}
+                style={{ transform: `translateX(${translateX}px)` }}
                 className={`
-          relative
-          ${dragging ? '' : 'transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'}
-          ${removing ? 'opacity-0 scale-95' : ''}
-        `}
+                  relative
+                  ${dragging ? '' : 'transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'}
+                  ${removing ? 'opacity-0 scale-95' : ''}
+                `}
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
-                onPointerLeave={onPointerUp}
+                onPointerCancel={onPointerUp}
                 onClick={(e) => {
                     if (isDraggingRef.current) {
                         e.preventDefault();
@@ -120,16 +150,11 @@ export default function SwipeItem({ children, onDelete, isDone }: SwipeItemProps
                     }
                 }}
             >
-                {/* 👉 children */}
                 {children}
 
-                {/* ✅ DONE ICON */}
                 {isDone && (
                     <div className="absolute top-0 right-1 pointer-events-none">
-                        <CheckCircle
-                            size={18}
-                            className="text-green-500 drop-shadow"
-                        />
+                        <CheckCircle size={18} className="text-green-500 drop-shadow" />
                     </div>
                 )}
             </div>

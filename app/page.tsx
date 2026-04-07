@@ -1,9 +1,9 @@
-import {Dashboard} from "./components/Dashboard";
+import { Dashboard } from './components/Dashboard';
 
 export default function Page() {
   return (
-    <main className="min-h-screen flex items-center justify-center p-4" style={{ background: '#E8E4DC' }}>
-      <div className="phone-frame relative overflow-hidden rounded-[40px] shadow-2xl">
+    <main>
+      <div className="phone-frame relative overflow-hidden">
         <Dashboard />
       </div>
       {/* Desktop hint */}

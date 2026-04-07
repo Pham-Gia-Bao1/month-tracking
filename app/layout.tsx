@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="bg-bg text-text-primary font-sans relative  ">
+    <html lang="en" className="">
       <body>
         <StoreProvider>
           <ToastProvider>

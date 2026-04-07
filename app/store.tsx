@@ -26,10 +26,10 @@ function makeDefaultMonth(id?: string): Month {
     label: monthLabel(mid),
     budgetGoal: 2000,
     categories: [
-      { id: uid(), name: 'Food & Dining', emoji: '🍜', color: 'red', budget: 400, expenses: [] },
-      { id: uid(), name: 'Transport', emoji: '', color: 'blue', budget: 200, expenses: [] },
-      { id: uid(), name: 'Shopping', emoji: '🛍️', color: 'purple', budget: 300, expenses: [] },
-      { id: uid(), name: 'Entertainment', emoji: '', color: 'gold', budget: 150, expenses: [] },
+      { id: `${mid}-food`, name: 'Food & Dining', emoji: '🍜', color: 'red', budget: 400, expenses: [] },
+      { id: `${mid}-transport`, name: 'Transport', emoji: '', color: 'blue', budget: 200, expenses: [] },
+      { id: `${mid}-shopping`, name: 'Shopping', emoji: '🛍️', color: 'purple', budget: 300, expenses: [] },
+      { id: `${mid}-entertainment`, name: 'Entertainment', emoji: '', color: 'gold', budget: 150, expenses: [] },
     ],
   };
 }
